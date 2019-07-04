@@ -71,25 +71,38 @@ void GPSINIT(int baud){
  gpsserial.write("");
 }
 
+void gpsRun(){
+  preserve = gpsInfo;
+  while (gpsserial.available()){
+   if (gps.encode(gpsserial.read())){
+   gpsInfo = getGPS();
+     break;
+   }
+ }
+}
+
 GPSdata getGPS(){
   GPSdata gpsInfo;
-  unsigned long chars;
-  unsigned short sentences, failed;
   
     float GPSLat, GPSLon;
     int GPSSats;
     long GPSAlt;
-    unsigned long date,fix_age,GPSTime;
+    unsigned long date,fix_age,GPSTime, GPSSpeed,GPSCourse;
+    
     gps.f_get_position(&GPSLat, &GPSLon, &fix_age);
     GPSSats = gps.satellites();
     gps.get_datetime(&date, &GPSTime, &fix_age);
     GPSAlt = gps.altitude()/100.;
+    GPSSpeed = gps.f_speed_mps();
+    GPSCourse = gps.course();
 
     gpsInfo.GPSLat = GPSLat;
     gpsInfo.GPSLon = GPSLon;
     gpsInfo.GPSTime = GPSTime/100;
     gpsInfo.GPSSats = GPSSats;
     gpsInfo.GPSAlt = GPSAlt;
+    gpsInfo.GPSSpeed = GPSSpeed;
+    gpsInfo.GPSCourse = GPSCourse;
   
   return gpsInfo;
 }
@@ -97,7 +110,7 @@ GPSdata getGPS(){
 void output(){
   String gpspacket;
   if(gpsInfo.GPSSats!=-1){
-    gpspacket = String(gpsInfo.GPSTime)+","+String(gpsInfo.GPSLat,6) + "," + String(gpsInfo.GPSLon,6)+","+gpsInfo.GPSAlt+","+gpsInfo.GPSSats;
+    gpspacket = String(gpsInfo.GPSTime)+","+String(gpsInfo.GPSLat,6) + "," + String(gpsInfo.GPSLon,6)+","+gpsInfo.GPSAlt+","+gpsInfo.GPSSats+","+gpsInfo.GPSSpeed+","+gpsInfo.GPSCourse;
   }else{
     //gpspacket = String(preserve.GPSTime/100)+","+String(preserve.GPSLat,6) + "," + String(preserve.GPSLon,6)+","+preserve.GPSAlt+","+preserve.GPSSats;
     gpspacket = "err" + String(gpsInfo.GPSTime/100)+","+String(gpsInfo.GPSLat,6) + "," + String(gpsInfo.GPSLon,6)+","+gpsInfo.GPSAlt+","+gpsInfo.GPSSats;

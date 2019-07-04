@@ -5,38 +5,37 @@
 #include <TinyGPS.h>
 #include <SoftwareSerial.h>
 
-//#define gpsserial Serial1; //Hardware Serial option
-//HardwareSerial & gpsserial = Serial3;
+//Use Hardware Serial-
 #define gpsserial Serial1
+//or Software Serial-
 //SoftwareSerial gpsserial = SoftwareSerial(5,6);
 
+//Structure containing different parameters parsed by the GPS
 struct GPSdata{
-  float GPSLat=0;
-  float GPSLon=0;
-  unsigned long GPSTime=0;
-  long GPSAlt=0;
+  float GPSLat=-1;
+  float GPSLon=-1;
+  unsigned long GPSTime=-1;
+  unsigned long GPSSpeed=-1;
+  long GPSAlt=-1;
   int GPSSats=-1;
+  long GPSCourse = -1;
 };
-TinyGPS gps;
-unsigned long cur=0;
-GPSdata gpsInfo;
-GPSdata preserve;
+TinyGPS gps; //The library object
+unsigned long cur = 0;
+GPSdata gpsInfo; //Current obj
+GPSdata preserve;//Last obj (for getting deltas)
 
 void setup() {
   GPSINIT(115200); //Only 9600 or 115200 for now, but simpler than before
-  Serial.begin(9600);
+  Serial.begin(115200);
   Serial.println("Init:-");
 }
 
 void loop() {
  //Parse GPS
- preserve = gpsInfo;
-  while (gpsserial.available()){
-   if (gps.encode(gpsserial.read())){
-	 gpsInfo = getGPS();
-     break;
-   }
- }
+ //Serial.println((String)millis());
+ gpsRun(); //Leave this in loop
+ 
  //---
  //Print to screen
   if(millis()>=(cur+1000)){
@@ -47,5 +46,5 @@ void loop() {
   //---
   
   //DO OTHER STUFF
-  delay(10);//Not needed
+   delay(10);//Not needed
 }
