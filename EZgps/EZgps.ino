@@ -5,8 +5,10 @@
 #include <TinyGPS.h>
 #include <SoftwareSerial.h>
 
-//#define Serial1 gpsserial; //Hardware Serial option
-SoftwareSerial gpsserial = SoftwareSerial(2,3);
+//#define gpsserial Serial1; //Hardware Serial option
+//HardwareSerial & gpsserial = Serial3;
+#define gpsserial Serial1
+//SoftwareSerial gpsserial = SoftwareSerial(5,6);
 
 struct GPSdata{
   float GPSLat=0;
@@ -21,11 +23,8 @@ GPSdata gpsInfo;
 GPSdata preserve;
 
 void setup() {
-  gpsserial.begin(9600);
-  GPSINIT();
-  gpsserial.end();
-  gpsserial.begin(115200);
-  Serial.begin(115200);
+  GPSINIT(115200); //Only 9600 or 115200 for now, but simpler than before
+  Serial.begin(9600);
   Serial.println("Init:-");
 }
 
@@ -40,10 +39,10 @@ void loop() {
  }
  //---
  //Print to screen
-  if(millis()>=(cur+250)){
+  if(millis()>=(cur+1000)){
     cur=millis();
 	output();
-	//chang
+	//change
   }
   //---
   
